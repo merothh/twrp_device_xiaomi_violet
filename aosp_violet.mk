@@ -17,7 +17,7 @@
 # Release name
 PRODUCT_RELEASE_NAME := violet
 
-$(call inherit-product, build/target/product/embedded.mk)
+$(call inherit-product, build/target/product/base.mk)
 
 # Inherit some common PixelExperience stuff.
 TARGET_BOOT_ANIMATION_RES := 1080
