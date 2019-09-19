@@ -36,21 +36,25 @@ source "${HELPER}"
 
 # Default to sanitizing the vendor folder before extraction
 CLEAN_VENDOR=true
+
 SECTION=
 KANG=
 
-while [ "$1" != "" ]; do
-    case "$1" in
-        -n | --no-cleanup )     CLEAN_VENDOR=false
-                                ;;
-        -k | --kang)            KANG="--kang"
-                                ;;
-        -s | --section )        shift
-                                SECTION="$1"
-                                CLEAN_VENDOR=false
-                                ;;
-        * )                     SRC="$1"
-                                ;;
+while [ "${#}" -gt 0 ]; do
+    case "${1}" in
+        -n | --no-cleanup )
+                CLEAN_VENDOR=false
+                ;;
+        -k | --kang )
+                KANG="--kang"
+                ;;
+        -s | --section )
+                SECTION="${2}"; shift
+                CLEAN_VENDOR=false
+                ;;
+        * )
+                SRC="${1}"
+                ;;
     esac
     shift
 done
@@ -59,9 +63,21 @@ if [ -z "${SRC}" ]; then
     SRC=adb
 fi
 
+function blob_fixup() {
+    case "${1}" in
+    sbin/qseecomd)
+        sed -i "s|/system/bin/linker64|/sbin/linker64\x0\x0\x0\x0\x0\x0|g" "${2}"
+        ;;
+    sbin/android.hardware.gatekeeper@1.0-service-qti)
+	sed -i "s|/system/bin/linker64|/sbin/linker64\x0\x0\x0\x0\x0\x0|g" "${2}"
+	;;
+    sbin/android.hardware.keymaster@4.0-service-qti)
+	sed -i "s|/system/bin/linker64|/sbin/linker64\x0\x0\x0\x0\x0\x0|g" "$(2)"
+	;;
+    esac
+}
+
 # Initialize the helper
 setup_vendor "${DEVICE}" "${VENDOR}" "${LINEAGE_ROOT}" false "${CLEAN_VENDOR}"
 
-extract "${MY_DIR}/proprietary-files.txt" "${SRC}" ${KANG} --section "${SECTION}"
-
-"${MY_DIR}/setup-makefiles.sh"
+extract "${MY_DIR}/proprietary-files-twrp.txt" "${SRC}" ${KANG} --section "${SECTION}"
