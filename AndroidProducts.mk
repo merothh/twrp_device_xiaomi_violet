@@ -15,4 +15,4 @@
 #
 
 PRODUCT_MAKEFILES := \
-    $(LOCAL_DIR)/omni_violet.mk
+    $(LOCAL_DIR)/aosp_violet.mk
